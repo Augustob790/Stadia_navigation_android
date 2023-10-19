@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TestNavigationViewDark" parent="NavigationViewDark">
+        <!-- Map style URL -->
+        <item name="navigationViewMapStyle">
+            https://tiles.stadiamaps.com/styles/outdoors.json?api_key=YOUR-API-KEY
+        </item>
+    </style>
+
+    <style name="TestNavigationViewLight" parent="NavigationViewLight">
+        <!-- Map style URL -->
+        <item name="navigationViewMapStyle">
+            https://tiles.stadiamaps.com/styles/outdoors.json?api_key=YOUR-API-KEY
+        </item>
+    </style>
+</resources>
