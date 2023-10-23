@@ -38,12 +38,11 @@ import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 @Composable
 fun NavigationMap() {
-    var destination: Point? by remember { mutableStateOf(null) }
+    var waypoints: List<Point> by remember { mutableStateOf(listOf()) }
     var mapboxMap: MapboxMap? by remember { mutableStateOf(null) }
     var navigationMapRoute: NavigationMapRoute? by remember { mutableStateOf(null) }
     var route: DirectionsRoute? by remember { mutableStateOf(null) }
@@ -89,24 +88,19 @@ fun NavigationMap() {
             }
 
             map.addOnMapClickListener { point ->
-                when {
-                    destination == null -> {
-                        destination =
-                            Point.fromLngLat(point.longitude, point.latitude)
-                        map.addMarker(MarkerOptions().position(point))
-                    }
-                }
+                waypoints += Point.fromLngLat(point.longitude, point.latitude)
+                map.addMarker(MarkerOptions().position(point))
 
                 val userLocation = map.locationComponent.lastKnownLocation
-                val dest = destination
-                if (userLocation != null && dest != null) {
+                val points = waypoints.toList()
+                if (userLocation != null && points.isNotEmpty()) {
                     val origin = Point.fromLngLat(
                         userLocation.longitude, userLocation.latitude
                     )
 
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            val routes = getDirections(listOf(origin, dest))
+                            val routes = getDirections(listOf(origin) + points)
 
                             withContext(Dispatchers.Main) {
                                 if (routes.isEmpty()) {
@@ -134,7 +128,7 @@ fun NavigationMap() {
         mapView
     })
 
-    if (destination != null) {
+    if (waypoints.isNotEmpty()) {
         route?.let {
             StartRouteControls(route = it)
         }
@@ -144,7 +138,7 @@ fun NavigationMap() {
                 mapboxMap?.removeMarker(it)
             }
 
-            destination = null
+            waypoints = listOf()
             route = null
 
             navigationMapRoute?.updateRouteVisibilityTo(false)
