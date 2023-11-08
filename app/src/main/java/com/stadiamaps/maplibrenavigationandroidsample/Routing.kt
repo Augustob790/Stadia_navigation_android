@@ -1,9 +1,11 @@
 package com.stadiamaps.maplibrenavigationandroidsample
 
-import com.mapbox.api.directions.v5.DirectionsCriteria
+//import com.mapbox.api.directions.v5.DirectionsCriteria
+import com.mapbox.services.android.navigation.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.DirectionsResponse
-import com.mapbox.api.directions.v5.models.DirectionsRoute
-import com.mapbox.api.directions.v5.models.RouteOptions
+//import com.mapbox.api.directions.v5.models.RouteOptions
+import com.mapbox.services.android.navigation.v5.models.RouteOptions
+import com.mapbox.services.android.navigation.v5.models.DirectionsCriteria
 import com.mapbox.geojson.Point
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -14,7 +16,7 @@ import javax.net.ssl.HttpsURLConnection
 /**
  * Gets directions between using the Stadia Maps Navigation API.
  */
-suspend fun getDirections(coordinates: List<Point>): List<DirectionsRoute> {
+suspend fun getDirections(coordinates: List<Point>): List<com.mapbox.services.android.navigation.v5.models.DirectionsRoute> {
     // Most of this is boilerplate.
     // It is only used by the internals of the SDK.
     // As a Stadia Maps user, this is not actually translated into the API requests
@@ -86,7 +88,7 @@ suspend fun getDirections(coordinates: List<Point>): List<DirectionsRoute> {
 
         conn.disconnect()
 
-        val routes = DirectionsResponse.fromJson(responseString).routes()
+        val routes =  com.mapbox.services.android.navigation.v5.models.DirectionsResponse.fromJson(responseString).routes()
         routes.map {
             // Rebuild the routes to include the options, since otherwise the SDK will crash.
             // We have to use this positively awful builder boilerplate because the interface

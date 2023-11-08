@@ -7,6 +7,8 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
-import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
@@ -32,6 +33,7 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.services.android.navigation.v5.models.DirectionsRoute
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute
@@ -46,6 +48,7 @@ fun NavigationMap() {
     var mapboxMap: MapboxMap? by remember { mutableStateOf(null) }
     var navigationMapRoute: NavigationMapRoute? by remember { mutableStateOf(null) }
     var route: DirectionsRoute? by remember { mutableStateOf(null) }
+    var asx: Boolean = true
 
     AndroidView(factory = { context ->
         Mapbox.getInstance(context)
@@ -87,20 +90,34 @@ fun NavigationMap() {
                 }
             }
 
-            map.addOnMapClickListener { point ->
-                waypoints += Point.fromLngLat(point.longitude, point.latitude)
-                map.addMarker(MarkerOptions().position(point))
+            map.addOnMapClickListener {
+
+                                   // point ->
+                //waypoints += Point.fromLngLat(point.longitude, point.latitude)
+                //map.addMarker(MarkerOptions().position(point))
+                asx = true
+
+
+                //val originPoint = Point.fromLngLat(  -47.0101979,   -23.162793)
+                //val originPoint = Point.fromLngLat( -48.2378122,-7.2021342)
+                //val firstWaypoint = Point.fromLngLat(  -48.2247439, -7.1920137 )
+                //val secondWayPointPoint = Point.fromLngLat( -48.2175363 , -7.1941104 )
+               // val thirdPoint = Point.fromLngLat( -48.2241323, -7.3270144 )
+                //val destinationPoint = Point.fromLngLat( -48.2027166, -7.2010835 )
+                val destinationPoint = Point.fromLngLat( -59.9927141, -3.1165498 )
 
                 val userLocation = map.locationComponent.lastKnownLocation
                 val points = waypoints.toList()
-                if (userLocation != null && points.isNotEmpty()) {
+                //&& points.isNotEmpty()
+                if (userLocation != null ) {
                     val origin = Point.fromLngLat(
                         userLocation.longitude, userLocation.latitude
                     )
 
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
-                            val routes = getDirections(listOf(origin) + points)
+                            //val routes = getDirections(listOf(origin) + points)
+                            val routes = getDirections(listOf(origin,  destinationPoint ))
 
                             withContext(Dispatchers.Main) {
                                 if (routes.isEmpty()) {
@@ -128,15 +145,25 @@ fun NavigationMap() {
         mapView
     })
 
-    if (waypoints.isNotEmpty()) {
+
+//waypoints.isNotEmpty()
+ //   asx != false
+    if ( asx != false) {
         route?.let {
             StartRouteControls(route = it)
         }
 
-        FloatingActionButton(onClick = {
+       SmallFloatingActionButton(
+            containerColor = MaterialTheme.colorScheme.error,
+            onClick = {
             mapboxMap?.markers?.forEach {
                 mapboxMap?.removeMarker(it)
             }
+
+               /* FloatingActionButton(onClick = {
+                    mapboxMap?.markers?.forEach {
+                        mapboxMap?.removeMarker(it)
+                    }*/
 
             waypoints = listOf()
             route = null
@@ -144,10 +171,14 @@ fun NavigationMap() {
             navigationMapRoute?.updateRouteVisibilityTo(false)
             navigationMapRoute?.updateRouteArrowVisibilityTo(false)
         }) {
-            Text(text = "Clear Points")
+            //Text(text = "Clear Points")
+            Icon(Icons.Filled.Delete, "Floating action button.")
         }
     }
 }
+
+
+
 
 @Composable
 fun StartRouteControls(route: DirectionsRoute) {
@@ -157,24 +188,24 @@ fun StartRouteControls(route: DirectionsRoute) {
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize().background(Color.Transparent)
             .padding(8.dp),
-        contentAlignment = Alignment.BottomStart
+        contentAlignment = Alignment.BottomCenter
     ) {
         Row(
             modifier = Modifier
                 .background(
-                    Color(0xFF121212), shape = RoundedCornerShape(4.dp)
+                    Color.Transparent, shape = RoundedCornerShape(4.dp)
                 ) // Your colorPrimaryDark
                 .padding(8.dp)
         ) {
             // Switch
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = "Simulate Route", color = Color.White
+                    text = "Simulate", color = Color.Black
                 )
 
                 Switch(checked = simulateRoute, onCheckedChange = { simulateRoute = it })
@@ -182,6 +213,8 @@ fun StartRouteControls(route: DirectionsRoute) {
 
             // Button
             Button(
+                modifier = Modifier
+                    .padding(horizontal = 10.dp, vertical = 5.dp),
                 onClick = {
                     val initialCamera =
                         route.legs()!!.first().steps()!!.first().maneuver().location()
