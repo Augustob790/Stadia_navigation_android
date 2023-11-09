@@ -98,18 +98,21 @@ fun NavigationMap() {
                 asx = true
 
 
+
+
                 //val originPoint = Point.fromLngLat(  -47.0101979,   -23.162793)
                 //val originPoint = Point.fromLngLat( -48.2378122,-7.2021342)
                 //val firstWaypoint = Point.fromLngLat(  -48.2247439, -7.1920137 )
                 //val secondWayPointPoint = Point.fromLngLat( -48.2175363 , -7.1941104 )
-               // val thirdPoint = Point.fromLngLat( -48.2241323, -7.3270144 )
+                //val thirdPoint = Point.fromLngLat( -48.2241323, -7.3270144 )
                 //val destinationPoint = Point.fromLngLat( -48.2027166, -7.2010835 )
-                val destinationPoint = Point.fromLngLat( -59.9927141, -3.1165498 )
+                 val destinationPoint = Point.fromLngLat( -59.9927141, -3.1165498 )
 
                 val userLocation = map.locationComponent.lastKnownLocation
                 val points = waypoints.toList()
                 //&& points.isNotEmpty()
                 if (userLocation != null ) {
+                    //coordinate origin in emulator : -23.1638, -47.0076
                     val origin = Point.fromLngLat(
                         userLocation.longitude, userLocation.latitude
                     )
@@ -117,7 +120,7 @@ fun NavigationMap() {
                     CoroutineScope(Dispatchers.IO).launch {
                         try {
                             //val routes = getDirections(listOf(origin) + points)
-                            val routes = getDirections(listOf(origin,  destinationPoint ))
+                            val routes = getDirections(listOf(origin, destinationPoint ))
 
                             withContext(Dispatchers.Main) {
                                 if (routes.isEmpty()) {
